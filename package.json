@@ -18,6 +18,7 @@
   "homepage": "https://github.com/constellational/api#readme",
   "dependencies": {
     "base64-url": "^1.2.1",
+    "bcryptjs": "^2.2.0",
     "bluebird": "^2.9.34"
   }
 }
