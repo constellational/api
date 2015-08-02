@@ -1,5 +1,5 @@
 var Promise = require("bluebird");
-var bcrypt = Promise.promisifyAll(require('bcrypt-nodejs'));
+var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var s3 = require('./s3helpers');
 
 var randomString = function() {
