@@ -93,7 +93,7 @@ exports.handler = function(event, context) {
     else list(event.username).then(context.succeed).catch(context.fail);
     break;
   case 'POST':
-    if (event.data.token) create(event.username, event.data.token, event.data).then(context.succeed).catch(context.fail);
+    if (event.data) create(event.username, event.data.token, event.data).then(context.succeed).catch(context.fail);
     else signup(event.username).then(context.succeed).catch(context.fail);
     break;
   case 'DELETE':
