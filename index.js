@@ -2,6 +2,12 @@ var Promise = require("bluebird");
 var bcrypt = Promise.promisifyAll(require('bcrypt-nodejs'));
 var s3 = require('./s3helpers');
 
+var randomString = function() {
+  var shasum = crypto.createHash('sha1');
+  shasum.update(Math.random().toString());
+  return base64url.escape(shasum.digest('base64'));
+};
+
 var auth = function(author, token) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
