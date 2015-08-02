@@ -5,7 +5,7 @@ var s3 = require('./s3helpers');
 var auth = function(author, token) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    s3.parseObj(bucket, author).then(function(meta) {
+    s3.getParsed(bucket, author).then(function(meta) {
       return bcrypt.compare(token, meta.hash);
     }).then(function(res) {
       if (res) resolve();
@@ -17,7 +17,7 @@ var auth = function(author, token) {
 var checkDoesntExist = function(author) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    s3.parseObj(bucket, author).then(function(obj) {
+    s3.getParsed(bucket, author).then(function(obj) {
       reject("Already exists");
     }).catch(function(err) {
       if (err.indexOf('NoSuchKey') != -1) resolve();
@@ -29,14 +29,14 @@ var checkDoesntExist = function(author) {
 var get = function(author, id) {
   var bucket = 'constellational-store';
   var key = author + '/' + id;
-  return s3.parseObj(bucket, key);
+  return s3.getParsed(bucket, key);
 };
 
 var list = function(author) {
   var bucket = 'constellational-store';
   var prefix = author + '/';
   var ret;
-  return s3.parseObj(bucket, author).then(function(blog) {
+  return s3.getParsed(bucket, author).then(function(blog) {
     ret = blog;
     return s3.listKeys(bucket, prefix);
   }).then(function(entries) {
@@ -52,7 +52,7 @@ var create = function(author, token, entry) {
     entry.updated = entry.created;
     if (!entry.id) entry.id = randomString();
     var key = entry.created + randomString();
-    return s3.stringifyPut(bucket, entry, key);
+    return s3.putStringified(bucket, entry, key);
   });
 };
 
@@ -65,7 +65,7 @@ var signup = function(author) {
     return bcrypt.hashAsync(randomString(), salt, null);
   }).then(function(hash) {
     meta.hash = hash;
-    return s3.stringifyPut(bucket, meta, author);
+    return s3.putStringified(bucket, meta, author);
   }).then(function() {
     return meta;
   });
