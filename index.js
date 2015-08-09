@@ -70,9 +70,9 @@ var signup = function(username) {
   var bucket = 'constellational-meta';
   var token = randomString();
   return checkAvailable(username).then(function() {
-    return bcrypt.hashAsync(token, 10, null);
+    return bcrypt.hashAsync(token, 10);
   }).then(function(hash) {
-    return s3.putStringified(bucket, {hash: hash}, username);
+    return s3.putStringified(bucket, username, {hash: hash});
   }).then(function() {
     return {username: username, token: token};
   });
