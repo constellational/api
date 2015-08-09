@@ -1,5 +1,8 @@
-var Promise = require("bluebird");
+var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
+var crypto = require('crypto');
+var base64url = require('base64-url');
+
 var s3 = require('./s3helpers');
 
 var randomString = function() {
@@ -20,13 +23,13 @@ var auth = function(username, token) {
   });
 };
 
-var checkDoesntExist = function(username) {
+var checkAvailable = function(username) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
     s3.getParsed(bucket, username).then(function(obj) {
-      reject("Already exists");
+      reject('Unavailable');
     }).catch(function(err) {
-      if (err.indexOf('NoSuchKey') != -1) resolve();
+      if (err.indexOf('NoSuchKey') != -1) resolve('Available');
       else reject(err);
     });
   });
@@ -65,16 +68,13 @@ var create = function(username, token, entry) {
 
 var signup = function(username) {
   var bucket = 'constellational-meta';
-  var meta = {};
-  return checkDoesntExist(username).then(function() {
-    return bcrypt.genSaltAsync(10);
-  }).then(function(salt) {
-    return bcrypt.hashAsync(randomString(), salt, null);
+  var token = randomString();
+  return checkAvailable(username).then(function() {
+    return bcrypt.hashAsync(token, 10, null);
   }).then(function(hash) {
-    meta.hash = hash;
-    return s3.putStringified(bucket, meta, username);
+    return s3.putStringified(bucket, {hash: hash}, username);
   }).then(function() {
-    return meta;
+    return {username: username, token: token};
   });
 };
 
