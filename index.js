@@ -15,7 +15,7 @@ var auth = function(username, token) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
     s3.getParsed(bucket, username).then(function(meta) {
-      return bcrypt.compare(token, meta.hash);
+      return bcrypt.compareAsync(token, meta.hash);
     }).then(function(res) {
       if (res) resolve();
       else reject('auth fail');
