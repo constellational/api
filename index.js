@@ -3,58 +3,73 @@ var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var crypto = require('crypto');
 var base64url = require('base64-url');
 
-var s3 = require('./s3helpers');
+var s3 = new AWS.S3();
+Promise.promisifyAll(Object.getPrototypeOf(s3));
 
-var randomString = function() {
+function getObj(bucket, key) {
+  console.log("Going to get " + key + " from " + bucket);
+  return s3.getObjectAsync({Bucket: bucket, Key: key}).then(function(data) {
+    var s = new Buffer(data.Body).toString();
+    return JSON.parse(s);
+  });
+}
+
+function putJSON(bucket, key, obj) {
+  console.log("Going to put " + key + " into " + bucket);
+  return s3.putObjectAsync({Bucket: bucket, Key: key, Body: obj, ContentType: 'application/json'});
+}
+
+function randomString() {
   var shasum = crypto.createHash('sha1');
   shasum.update(Math.random().toString());
   return base64url.escape(shasum.digest('base64'));
-};
+}
 
-var auth = function(username, token) {
+function auth(username, token) {
+  console.log("Going to check token for user " + username);
   var bucket = 'constellational-meta';
-  return new Promise(function(resolve, reject) {
-    s3.getParsed(bucket, username).then(function(meta) {
-      return bcrypt.compareAsync(token, meta.hash);
-    }).then(function(res) {
-      if (res) resolve();
-      else reject('auth fail');
-    });
+  return getObj(bucket, username).then(function(meta) {
+    return bcrypt.compareAsync(token, meta.hash);
+  }).then(function(res) {
+    if (!res) Promise.reject('auth fail');
   });
-};
+}
 
-var checkAvailable = function(username) {
+function checkAvailable(username) {
+  console.log("Going to check if " + username + " is available");
   var bucket = 'constellational-meta';
-  return new Promise(function(resolve, reject) {
-    s3.getParsed(bucket, username).then(function(obj) {
-      reject('Unavailable');
-    }).catch(function(err) {
-      if (err.indexOf('NoSuchKey') != -1) resolve('Available');
-      else reject(err);
-    });
+  return getObj(bucket, username).then(function(obj) {
+    Promise.reject('Unavailable');
+  }).catch(function(err) {
+    if (err.indexOf('NoSuchKey') != -1) return 'Available';
+    else Promise.reject(err);
   });
-};
+}
 
-var get = function(username, id) {
+function get(username, id) {
+  console.log("Going to get " + id + " for " + username);
   var bucket = 'constellational-store';
   var key = username + '/' + id;
-  return s3.getParsed(bucket, key);
-};
+  return getObj(bucket, key);
+}
 
-var list = function(username) {
+function list(username) {
+  console.log("Going to list entries for " + username);
   var bucket = 'constellational-store';
   var prefix = username + '/';
-  var ret;
-  return s3.getParsed(bucket, username).then(function(blog) {
-    ret = blog;
-    return s3.listKeys(bucket, prefix);
-  }).then(function(entries) {
-    ret.entries = entries;
-    return ret;
+  return getObj(bucket, username).then(function(blog) {
+    return s3.listObjectsAsync({Bucket: bucket, Prefix: prefix}).then(function(data) {
+      blog.entries = data.Contents.map(function(o) {
+        return o.Key.substring(prefix.length);
+      });
+      blog.entries.reverse();
+      return blog;
+    });
   });
-};
+}
 
-var create = function(username, token, entry) {
+function create(username, token, entry) {
+  console.log("Going to create a new entry for " + username);
   delete entry.token;
   return auth(username, token).then(function() {
     var bucket = 'constellational-store';
@@ -62,28 +77,30 @@ var create = function(username, token, entry) {
     entry.updated = entry.created;
     if (!entry.id) entry.id = randomString();
     var key = entry.created + randomString();
-    return s3.putStringified(bucket, entry, key);
+    return putJSON(bucket, key, entry);
   });
-};
+}
 
-var signup = function(username) {
+function signup(username) {
+  console.log("Going to sign " + username + " up");
   var bucket = 'constellational-meta';
   var token = randomString();
   return checkAvailable(username).then(function() {
     return bcrypt.hashAsync(token, 10);
   }).then(function(hash) {
-    return s3.putStringified(bucket, username, {hash: hash});
+    return putJSON(bucket, key, {hash: hash});
   }).then(function() {
     return {username: username, token: token};
   });
-};
+}
 
-var del = function(username, token, id) {
+function del(username, token, id) {
+  console.log("Going to delete " + id + " for " + username);
   return auth(username, token).then(function() {
     var bucket = 'constellational-store';
-    return s3.delKey(bucket, id);
+    return s3.deleteObjectAsync({Bucket: bucket, Key: id});
   });
-};
+}
 
 exports.handler = function(event, context) {
   console.log(event);
