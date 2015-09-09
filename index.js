@@ -2,7 +2,7 @@ var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var crypto = require('crypto');
 var base64url = require('base64-url');
-
+var AWS = require('aws-sdk');
 var s3 = new AWS.S3();
 Promise.promisifyAll(Object.getPrototypeOf(s3));
 
