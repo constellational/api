@@ -88,7 +88,7 @@ function signup(username) {
   return checkAvailable(username).then(function() {
     return bcrypt.hashAsync(token, 10);
   }).then(function(hash) {
-    return putJSON(bucket, key, {hash: hash});
+    return putJSON(bucket, username, {hash: hash});
   }).then(function() {
     return {username: username, token: token};
   });
