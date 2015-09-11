@@ -37,11 +37,13 @@ function auth(username, token) {
 function checkAvailable(username) {
   console.log("Going to check if " + username + " is available");
   var bucket = 'constellational-meta';
-  return getObj(bucket, username).then(function(obj) {
-    Promise.reject('Unavailable');
-  }).catch(function(err) {
-    if (err.indexOf('NoSuchKey') != -1) return 'Available';
-    else Promise.reject(err);
+  return new Promise(function(resolve, reject) {
+    getObj(bucket, username).then(function(obj) {
+      reject('Unavailable');
+    }).catch(function(err) {
+      if (err.indexOf('NoSuchKey') != -1) return 'Available';
+      else Promise.reject(err);
+    });
   });
 }
 
@@ -109,7 +111,7 @@ exports.handler = function(event, context) {
     else list(event.username).then(context.succeed).catch(context.fail);
     break;
   case 'POST':
-    if (event.data.token) create(event.username, event.data.token, event.data).then(context.succeed).catch(context.fail);
+    if (event.data && event.data.token) create(event.username, event.data.token, event.data).then(context.succeed).catch(context.fail);
     else signup(event.username).then(context.succeed).catch(context.fail);
     break;
   case 'DELETE':
