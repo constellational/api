@@ -16,8 +16,7 @@ function getObj(bucket, key) {
 
 function putJSON(bucket, key, obj) {
   console.log("Going to put " + key + " into " + bucket);
-  return s3.putObjectAsync({Bucket: bucket, Key: key, Body: obj, ContentType: 'application/json'});
-}
+  return s3.putObjectAsync({Bucket: bucket, Key: key, Body: JSON.stringify(obj), ContentType: 'application/json'}); }
 
 function randomString() {
   var shasum = crypto.createHash('sha1');
