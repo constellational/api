@@ -41,8 +41,8 @@ function checkAvailable(username) {
     getObj(bucket, username).then(function(obj) {
       reject('Unavailable');
     }).catch(function(err) {
-      if (err.indexOf('NoSuchKey') != -1) return 'Available';
-      else Promise.reject(err);
+      if (err.code === 'NoSuchKey') resolve('Available');
+      else reject(err);
     });
   });
 }
