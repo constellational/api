@@ -20,10 +20,7 @@ function putJSON(bucket, key, obj) {
 }
 
 function randomString() {
-  console.log("Going to generate random string");
-  var shasum = crypto.createHash('sha1');
-  shasum.update(Math.random().toString());
-  return base64url.escape(shasum.digest('base64'));
+  return base64url.escape(crypto.randomBytes(6).toString('base64'));
 }
 
 function auth(username, token) {
