@@ -20,7 +20,7 @@ function putJSON(bucket, key, obj) {
 }
 
 function randomString() {
-  return base64url.escape(crypto.RandomBytes(192).toString('base64'));
+  return base64url.escape(crypto.randomBytes(48).toString('base64'));
 }
 
 
