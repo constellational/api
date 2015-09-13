@@ -20,9 +20,7 @@ function putJSON(bucket, key, obj) {
 }
 
 function randomString() {
-  var shasum = crypto.createHash('sha1');
-  shasum.update(Math.random().toString());
-  return base64url.escape(shasum.digest('base64'));
+  return base64url.escape(crypto.RandomBytes(192).toString('base64'));
 }
 
 
