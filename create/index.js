@@ -45,7 +45,7 @@ function create(username, token, article) {
     article.updated = article.created;
     if (!article.id) article.id = randomString();
     var key = article.created + randomString();
-    return putJSON(bucket, key, article).then(function() {
+    return putJSON(bucket, username + '/' + key, article).then(function() {
       article.key = key;
       return article;
     });
