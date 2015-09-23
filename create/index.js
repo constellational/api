@@ -16,7 +16,8 @@ function getObj(bucket, key) {
 
 function putJSON(bucket, key, obj) {
   console.log("Going to put " + key + " into " + bucket);
-  return s3.putObjectAsync({Bucket: bucket, Key: key, Body: JSON.stringify(obj), ContentType: 'application/json'}); 
+  var params = {Bucket: bucket, Key: key, Body: JSON.stringify(obj), ContentType: 'application/json', ACL: 'public-read'};
+  return s3.putObjectAsync(params); 
 }
 
 function randomString() {
