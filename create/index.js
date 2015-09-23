@@ -37,18 +37,18 @@ function auth(username, token) {
   });
 }
 
-function create(username, token, article) {
-  console.log("Going to create a new article for " + username);
-  delete article.token;
+function create(username, token, post) {
+  console.log("Going to create a new post for " + username);
+  delete post.token;
   return auth(username, token).then(function() {
     var bucket = 'constellational-store';
-    article.created = new Date().toISOString();
-    article.updated = article.created;
-    if (!article.id) article.id = randomString();
-    var key = article.created + randomString();
-    return putJSON(bucket, username + '/' + key, article).then(function() {
-      article.key = key;
-      return article;
+    post.created = new Date().toISOString();
+    post.updated = post.created;
+    if (!post.id) post.id = randomString();
+    var key = post.created + randomString();
+    return putJSON(bucket, username + '/' + key, post).then(function() {
+      post.key = key;
+      return post;
     });
   });
 }
