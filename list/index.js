@@ -15,17 +15,17 @@ function getUser(key) {
 }
 
 function list(username) {
-  console.log("Going to list entries for " + username);
+  console.log("Going to list posts for " + username);
   var prefix = username + '/';
   return getUser(username).then(function(user) {
     return s3.listObjectVersionsAsync({Bucket: BUCKET, Prefix: prefix}).then(function(data) {
       var latest = data.Versions.filter(function(o) {
         return o.IsLatest;
       });
-      user.articles = latest.map(function(o) {
+      user.posts = latest.map(function(o) {
         return o.Key.substring(prefix.length) + '?VersionId=' + o.VersionId;
       });
-      user.articles.reverse();
+      user.posts.reverse();
       return user;
     });
   });
