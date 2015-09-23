@@ -5,7 +5,7 @@ var s3 = new AWS.S3();
 Promise.promisifyAll(Object.getPrototypeOf(s3));
 
 function getUser(key) {
-  console.log("Going to get " + key + " from " + bucket);
+  console.log("Going to get " + key + " from " + BUCKET);
   return s3.getObjectAsync({Bucket: BUCKET, Key: key}).then(function(data) {
     var s = new Buffer(data.Body).toString();
     return JSON.parse(s);
@@ -16,7 +16,6 @@ function getUser(key) {
 
 function list(username) {
   console.log("Going to list entries for " + username);
-  var bucket = 'constellational-store';
   var prefix = username + '/';
   return getUser(username).then(function(user) {
     return s3.listObjectVersionsAsync({Bucket: BUCKET, Prefix: prefix}).then(function(data) {
