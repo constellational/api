@@ -45,7 +45,7 @@ function create(username, token, post) {
     post.created = new Date().toISOString();
     post.updated = post.created;
     if (!post.id) post.id = randomString();
-    var key = post.created + randomString();
+    var key = post.created + post.id;
     return putJSON(bucket, username + '/' + key, post).then(function(data) {
       post.key = key;
       post.url = key + '?VersionId=' + data.VersionId;
