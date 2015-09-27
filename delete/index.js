@@ -50,5 +50,5 @@ exports.handler = function(event, context) {
   console.log("Started");
   console.log(event);
   if (!event.data || !event.data.token) context.fail('Bad Request');
-  else create(event.username, event.data.token, event.key).then(context.succeed).catch(context.fail);
+  else del(event.username, event.data.token, event.key).then(context.succeed).catch(context.fail);
 };
