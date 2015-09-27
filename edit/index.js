@@ -37,13 +37,20 @@ function auth(username, token) {
   });
 }
 
-function edit(username, token, post) {
+function edit(username, token, key, post) {
   console.log("Going to edit a post");
+  var bucket = 'constellational-store';
   delete post.token;
   return auth(username, token).then(function() {
-    var bucket = 'constellational-store';
-    post.updated = new Date().toISOString();
-    return putJSON(bucket, username + '/' + post.key, post).then(function(data) {
+    console.log("Getting old post");
+    return getObj(bucket, username + '/' + key).then(function(oldPost) {
+      post.created = oldPost.created;
+      post.updated = new Date().toISOString();
+      if (!post.type) post.type = oldPost.type;
+      if (!post.data) post.data = oldPost.data;
+      console.log("Storing new post");
+      return putJSON(bucket, username + '/' + key, post);
+    }).then(function(data) {
       post.url = key + '?VersionId=' + data.VersionId;
       return post;
     });
@@ -54,5 +61,5 @@ exports.handler = function(event, context) {
   console.log("Started");
   console.log(event);
   if (!event.data || !event.data.token) context.fail('Bad Request');
-  else edit(event.username, event.data.token, event.data).then(context.succeed).catch(context.fail);
+  else edit(event.username, event.data.token, event.key, event.data).then(context.succeed).catch(context.fail);
 };
