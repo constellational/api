@@ -1,5 +1,3 @@
-var crypto = require('crypto');
-var base64url = require('base64-url');
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var AWS = require('aws-sdk');
@@ -12,16 +10,6 @@ function getObj(bucket, key) {
     var s = new Buffer(data.Body).toString();
     return JSON.parse(s);
   });
-}
-
-function putJSON(bucket, key, obj) {
-  console.log("Going to put " + key + " into " + bucket);
-  var params = {Bucket: bucket, Key: key, Body: JSON.stringify(obj), ContentType: 'application/json', ACL: 'public-read'};
-  return s3.putObjectAsync(params); 
-}
-
-function randomString() {
-  return base64url.escape(crypto.randomBytes(6).toString('base64'));
 }
 
 function auth(username, token) {
