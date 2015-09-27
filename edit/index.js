@@ -38,7 +38,7 @@ function auth(username, token) {
 }
 
 function edit(username, token, post) {
-  console.log("Going to create a edit post");
+  console.log("Going to edit a post");
   delete post.token;
   return auth(username, token).then(function() {
     var bucket = 'constellational-store';
