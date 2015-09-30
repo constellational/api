@@ -20,7 +20,8 @@ function list(username) {
   return getUser(username).then(function(user) {
     return s3.listObjectVersionsAsync({Bucket: BUCKET, Prefix: prefix}).then(function(data) {
       var latest = data.Versions.filter(function(o) {
-        return o.IsLatest;
+        // After deleting objects, there seems to be a obj with size 0
+        return (o.IsLatest && (o.Key !== prefix));
       });
       user.posts = latest.map(function(o) {
         return o.Key.substring(prefix.length) + '?VersionId=' + o.VersionId;
