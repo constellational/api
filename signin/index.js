@@ -148,5 +148,5 @@ function signin(username, email) {
 exports.handler = function(event, context) {
   console.log("Started");
   console.log(event);
-  signup(event.username).then(context.succeed).catch(context.fail);
+  signin(event.username, event.email).then(context.succeed).catch(context.fail);
 };
