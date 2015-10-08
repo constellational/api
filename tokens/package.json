@@ -1,5 +1,5 @@
 {
-  "name": "signup",
+  "name": "tokens",
   "version": "1.0.0",
   "description": "lambda function that serves as constellational api backend",
   "main": "index.js",
