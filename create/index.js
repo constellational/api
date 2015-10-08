@@ -29,7 +29,7 @@ function auth(username, token) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
     return getObj(bucket, username).then(function(meta) {
-      return bcrypt.compareAsync(token, meta.hash);
+      return bcrypt.compareAsync(token.secret, meta.tokens[token.id].hash);
     }).then(function(res) {
       if (!res) reject('Authentication Failed');
       else resolve();
