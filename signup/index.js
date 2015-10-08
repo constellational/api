@@ -23,7 +23,6 @@ function randomString() {
   return base64url.escape(crypto.randomBytes(48).toString('base64'));
 }
 
-
 function checkAvailable(username) {
   console.log("Going to check if " + username + " is available");
   var bucket = 'constellational-meta';
@@ -44,13 +43,13 @@ function signup(username, email) {
     id: randomString(),
     secret: randomString()
   };
-  var user = {tokens: [], email: email};
+  var user = {tokens: {}, email: email};
   return checkAvailable(username).then(function() {
     console.log("Going to bcrypt token");
     return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
     console.log("Going to store bcrypted token");
-    user.tokens.push({id: token.id, hash: hash});
+    user.tokens[id] = hash;
     return putJSON(bucket, username, user);
   }).then(function() {
     console.log("Going to return username and token");
