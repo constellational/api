@@ -135,8 +135,8 @@ function signin(username, email) {
     console.log("Going to bcrypt temporary token");
     return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
-    if (!user.tempTokens) user.tempTokens = [];
-    user.tempTokens.push({id: id, hash: hash, timestamp: Date.now()});
+    if (!user.tempTokens) user.tempTokens = {};
+    user.tempTokens[id] = {hash: hash, created: Date.now()});
     console.log("Going to store bcrypted hash of temporary token");
     return putJSON(bucket, username, user);
   }).then(function() {
