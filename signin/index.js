@@ -126,13 +126,17 @@ function signin(username, email) {
   console.log("Going to sign " + username + " in");
   var user;
   var bucket = 'constellational-meta';
-  var token = randomString();
+  var token = {
+    id: randomString(),
+    secret: randomString()
+  };
   return checkEmail(username, email).then(function(details) {
     user = details;
     console.log("Going to bcrypt temporary token");
-    return bcrypt.hashAsync(token, 10);
+    return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
-    user.tempToken = {hash: hash, timestamp: Date.now()};
+    if (!user.tempTokens) user.tempTokens = [];
+    user.tempTokens.push({id: id, hash: hash, timestamp: Date.now()});
     console.log("Going to store bcrypted hash of temporary token");
     return putJSON(bucket, username, user);
   }).then(function() {
