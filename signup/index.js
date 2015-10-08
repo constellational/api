@@ -37,16 +37,21 @@ function checkAvailable(username) {
   });
 }
 
-function signup(username) {
+function signup(username, email) {
   console.log("Going to sign " + username + " up");
   var bucket = 'constellational-meta';
-  var token = randomString();
+  var token = {
+    id: randomString(),
+    secret: randomString()
+  };
+  var user = {tokens: [], email: email};
   return checkAvailable(username).then(function() {
     console.log("Going to bcrypt token");
-    return bcrypt.hashAsync(token, 10);
+    return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
     console.log("Going to store bcrypted token");
-    return putJSON(bucket, username, {hash: hash});
+    user.tokens.push({id: token.id, hash: hash});
+    return putJSON(bucket, username, user);
   }).then(function() {
     console.log("Going to return username and token");
     return {username: username, token: token};
