@@ -23,25 +23,21 @@ function randomString() {
   return base64url.escape(crypto.randomBytes(48).toString('base64'));
 }
 
-function checkToken(username, tempToken) {
+function checkToken(storedTokens, tempToken) {
   console.log("Going to check temporary token for " + username);
-  var bucket = 'constellational-meta';
-  var storedToken = {};
   return new Promise(function(resolve, reject) {
-    return getObj(bucket, username).then(function(obj) {
-      storedToken = obj.tempTokens[tempToken.id];
-      return bcrypt.compareAsync(tempToken.secret, storedToken.hash);
-    }).then(function(res) {
-      if (!res) reject('Authentication failed');
-      else {
+    if (!storedTokens || !storedTokens[tempToken.id]) reject('Authentication failed');
+    else {
+      var storedToken = storedTokens[tempToken.id];
+      bcrypt.compareAsync(tempToken.secret, storedToken.hash).then(function(res) {
         var created = new Date(storedToken.created);
         var difference = Date.now() - created;
-        if (difference > 900000) resolve();
-        else reject('Authentication failed');
-      }
-    }).catch(function(err) {
-      reject('Authentication failed');
-    });
+        if (!res || (difference > 900000)) reject('Authentication failed');
+        else resolve();
+      }).catch(function(err) {
+        reject('Authentication failed');
+      });
+    }
   });
 }
 
@@ -52,12 +48,17 @@ function generateToken(username, tempToken) {
     id: randomString(),
     secret: randomString()
   };
-  var user = {tokens: [], email: email};
-  return checkToken(username, tempToken).then(function() {
+  var user;
+  console.log("Going to get user details");
+  return getObj(bucket, username).then(function(u) {
+    user = u;
+    return checkToken(user.tempTokens, tempToken);
+  }).then(function() {
     console.log("Going to bcrypt token");
     return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
     console.log("Going to store bcrypted token");
+    if (!user.tokens) user.tokens = {};
     user.tokens[id] = hash;
     return putJSON(bucket, username, user);
   }).then(function() {
