@@ -1,5 +1,5 @@
 {
-  "name": "constellational-api",
+  "name": "signin",
   "version": "1.0.0",
   "description": "lambda function that serves as constellational.com backend",
   "main": "index.js",
