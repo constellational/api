@@ -48,7 +48,7 @@ function sendEmail(username, email, token) {
     html: '<p>Hi there!</p><p>Click <a href=' + link + '>here to sign in</a></p>',
     subject: 'Sign in to Constellational',
     from_email: 'signin@constellational.com',
-    from_name: 'Constellational Sign In",
+    from_name: 'Constellational Sign In',
     to: [{
       email: email,
       type: 'to'
@@ -57,7 +57,7 @@ function sendEmail(username, email, token) {
       Reply-To: 'arpith@constellational.com'
     }
   };
-  return mandrill_client.messages.sendAsync({"message": message});
+  return mandrill_client.messages.sendAsync({message: message});
 }
 
 function signin(username, email) {
