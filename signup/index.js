@@ -43,13 +43,17 @@ function signup(username, email) {
     id: randomString(),
     secret: randomString()
   };
-  var user = {tokens: {}, email: email};
+  var user = {tokens: {}};
   return checkAvailable(username).then(function() {
     console.log("Going to bcrypt token");
     return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
-    console.log("Going to store bcrypted token");
     user.tokens[id] = hash;
+    console.log("Going to bcrypt email");
+    return bcyrpt.hashAsync(email, 10);
+  }).then(function(hash) {
+    user.emailHash = hash;
+    console.log("Going to store user details");
     return putJSON(bucket, username, user);
   }).then(function() {
     console.log("Going to return username and token");
