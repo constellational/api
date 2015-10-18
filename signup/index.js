@@ -56,6 +56,11 @@ function signup(username, email) {
     console.log("Going to store user details");
     return putJSON(bucket, username, user);
   }).then(function() {
+    console.log("Going to store blank user page (in constellational-store)");
+    // this is so that there will be a static page for the user from the start
+    // even if there is nothing on it yet
+    return putJSON('constellational-store', username, {});
+  }).then(function() {
     console.log("Going to return username and token");
     return {username: username, token: token};
   });
