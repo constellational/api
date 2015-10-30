@@ -1,14 +1,16 @@
 require('dotenv').load();
+
 var crypto = require('crypto');
 var base64url = require('base64-url');
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var AWS = require('aws-sdk');
+
 var s3 = new AWS.S3();
 Promise.promisifyAll(Object.getPrototypeOf(s3));
+
 var mandrill = require('mandrill-api/mandrill');
 var mandrill_client = new mandrill.Mandrill(process.env.MANDRILL_API_KEY);
-Promise.promisifyAll(Object.getPrototypeOf(mandrill_client));
 
 function getObj(bucket, key) {
   console.log("Going to get " + key + " from " + bucket);
@@ -41,11 +43,10 @@ function checkEmail(username, email) {
 }
 
 function sendEmail(username, email, token) {
-  var escapedToken = base64url.escape(JSON.stringify(token));
-  var escapedEmail = base64url.escape(email);
-  var link = APP_URL + '/signin?username=' + username + '&email=' + escapedEmail + '&token=' + escapedToken;
+  var escapedToken = base64url.encode(JSON.stringify(token));
+  var link = APP_URL + '/signin?token=' + escapedToken;
   var message = {
-    html: '<p>Hi there!</p><p>Click <a href=' + link + '>here to sign in</a></p>',
+    html: '<p>Hi there!</p><p>Click <a href=' + link + '>here to sign in</a></p><p>If clicking that does not work, paste the following in your phone browser: </p><p>'+link+'</p>',
     subject: 'Sign in to Constellational',
     from_email: 'signin@constellational.com',
     from_name: 'Constellational Sign In',
@@ -57,7 +58,14 @@ function sendEmail(username, email, token) {
       Reply-To: 'arpith@constellational.com'
     }
   };
-  return mandrill_client.messages.sendAsync({message: message});
+  return new Promise(function(resolve, reject) {
+    mandrill_client.messages.send({message: message}, function(res) {
+      if (res[0].reject_reason) reject(res[0]);
+      else resolve(res[0]);
+    }, function(err) {
+      reject(err);
+    });
+  });
 }
 
 function signin(username, email) {
