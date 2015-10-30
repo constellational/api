@@ -48,7 +48,7 @@ function signup(username, email) {
     console.log("Going to bcrypt token");
     return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
-    user.tokens[id] = hash;
+    user.tokens[token.id] = hash;
     console.log("Going to bcrypt email");
     return bcrypt.hashAsync(email, 10);
   }).then(function(hash) {
