@@ -35,10 +35,10 @@ function checkEmail(username, email) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
     return getObj(bucket, username).then(function(obj) {
-      return bcrypt.compareAsync(email, obj.emailHash);
-    }).then(function(res) {
-      if (!res) reject('Signin failed');
-      else resolve(obj);
+      return bcrypt.compareAsync(email, obj.emailHash).then(function(res) {
+        if (!res) reject('Signin failed');
+        else resolve(obj);
+      });
     });
   });
 }
@@ -83,7 +83,7 @@ function signin(username, email) {
     return bcrypt.hashAsync(token.secret, 10);
   }).then(function(hash) {
     if (!user.tempTokens) user.tempTokens = {};
-    user.tempTokens[id] = {hash: hash, created: Date.now()});
+    user.tempTokens[token.id] = {hash: hash, created: Date.now()};
     console.log("Going to store bcrypted hash of temporary token");
     return putJSON(bucket, username, user);
   }).then(function() {
