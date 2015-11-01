@@ -1,4 +1,5 @@
 require('dotenv').load();
+var APP_URL = 'constellational://';
 
 var crypto = require('crypto');
 var base64url = require('base64-url');
@@ -44,7 +45,7 @@ function checkEmail(username, email) {
 
 function sendEmail(username, email, token) {
   var escapedToken = base64url.encode(JSON.stringify(token));
-  var link = APP_URL + '/signin?token=' + escapedToken;
+  var link = APP_URL + 'signin?token=' + escapedToken;
   var message = {
     html: '<p>Hi there!</p><p>Click <a href=' + link + '>here to sign in</a></p><p>If clicking that does not work, paste the following in your phone browser: </p><p>'+link+'</p>',
     subject: 'Sign in to Constellational',
