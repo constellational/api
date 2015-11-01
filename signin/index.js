@@ -56,7 +56,7 @@ function sendEmail(username, email, token) {
       type: 'to'
     }],
     headers: {
-      Reply-To: 'arpith@constellational.com'
+      'Reply-To': 'arpith@constellational.com'
     }
   };
   return new Promise(function(resolve, reject) {
