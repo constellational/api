@@ -24,7 +24,7 @@ function randomString() {
 }
 
 function checkToken(storedTokens, tempToken) {
-  console.log("Going to check temporary token for " + username);
+  console.log("Going to check temporary token");
   return new Promise(function(resolve, reject) {
     if (!storedTokens || !storedTokens[tempToken.id]) reject('Authentication failed');
     else {
@@ -59,7 +59,7 @@ function generateToken(username, tempToken) {
   }).then(function(hash) {
     console.log("Going to store bcrypted token");
     if (!user.tokens) user.tokens = {};
-    user.tokens[id] = hash;
+    user.tokens[token.id] = hash;
     return putJSON(bucket, username, user);
   }).then(function() {
     console.log("Going to return username and token");
