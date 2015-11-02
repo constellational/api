@@ -14,9 +14,11 @@ function getObj(bucket, key) {
   });
 }
 
-function putJSON(bucket, key, obj) {
+function putJSON(bucket, key, obj, acl) {
   console.log("Going to put " + key + " into " + bucket);
-  return s3.putObjectAsync({Bucket: bucket, Key: key, Body: JSON.stringify(obj), ContentType: 'application/json'}); 
+  var params = {Bucket: bucket, Key: key, Body: JSON.stringify(obj), ContentType: 'application/json'};
+  if (acl) params.ACL = acl;
+  return s3.putObjectAsync(params); 
 }
 
 function randomString() {
@@ -59,7 +61,7 @@ function signup(username, email) {
     console.log("Going to store blank user page (in constellational-store)");
     // this is so that there will be a static page for the user from the start
     // even if there is nothing on it yet
-    return putJSON('constellational-store', username, {});
+    return putJSON('constellational-store', username, {}, 'public-read');
   }).then(function() {
     console.log("Going to return username and token");
     return {username: username, token: token};
