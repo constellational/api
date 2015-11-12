@@ -29,7 +29,7 @@ function auth(username, token) {
   var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
     return getObj(bucket, username).then(function(meta) {
-      return bcrypt.compareAsync(token.secret, meta.tokens[token.id].hash);
+      return bcrypt.compareAsync(token.secret, meta.tokens[token.id]);
     }).then(function(res) {
       if (!res) reject('Authentication Failed');
       else resolve();
@@ -59,7 +59,6 @@ function edit(username, token, key, post) {
 
 exports.handler = function(event, context) {
   console.log("Started");
-  console.log(event);
   if (!event.data || !event.data.token) context.fail('Bad Request');
   else edit(event.username, event.data.token, event.key, event.data).then(context.succeed).catch(context.fail);
 };
