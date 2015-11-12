@@ -27,7 +27,7 @@ function auth(username, token) {
 
 function deleteAllVersions(username, key) {
   console.log("Going to delete all versions of post");
-  var params = {Bucket: 'logworks-logs', Prefix: username + '/' + key};
+  var params = {Bucket: 'constellational-store', Prefix: username + '/' + key};
   return s3.listObjectVersionsAsync(params).then(function(data) {
     var promiseArr = data.Versions.map(function(obj) {
       console.log("Going to delete version " + obj.VersionId + " of key " + obj.Key);
@@ -40,7 +40,7 @@ function deleteAllVersions(username, key) {
 function del(username, token, key) {
   console.log("Going to delete post");
   return auth(username, token).then(function() {
-    return deleteAllVersion(username, key);
+    return deleteAllVersions(username, key);
   }).then(function() {
     return {key: key, success: 'true'};
   });
