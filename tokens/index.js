@@ -42,6 +42,7 @@ function checkToken(storedTokens, tempToken) {
 }
 
 function generateToken(username, tempToken) {
+  var username = username.toLowerCase();
   console.log("Going to generate token for " + username);
   var bucket = 'constellational-meta';
   var token = {

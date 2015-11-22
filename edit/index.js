@@ -38,6 +38,7 @@ function auth(username, token) {
 }
 
 function edit(username, token, key, post) {
+  var username = username.toLowerCase();
   console.log("Going to edit a post");
   var bucket = 'constellational-store';
   delete post.token;

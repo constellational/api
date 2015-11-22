@@ -39,6 +39,7 @@ function checkAvailable(username) {
 }
 
 function signup(username, email) {
+  var username = username.toLowerCase();
   console.log("Going to sign " + username + " up");
   var bucket = 'constellational-meta';
   var token = {

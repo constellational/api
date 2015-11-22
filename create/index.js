@@ -38,6 +38,7 @@ function auth(username, token) {
 }
 
 function create(username, token, post) {
+  var username = username.toLowerCase();
   console.log("Going to create a new post for " + username);
   delete post.token;
   return auth(username, token).then(function() {

@@ -70,6 +70,7 @@ function sendEmail(username, email, token) {
 }
 
 function signin(username, email) {
+  var username = username.toLowerCase();
   console.log("Going to sign " + username + " in");
   var user;
   var bucket = 'constellational-meta';

@@ -38,6 +38,7 @@ function deleteAllVersions(username, key) {
 }
 
 function del(username, token, key) {
+  var username = username.toLowerCase();
   console.log("Going to delete post");
   return auth(username, token).then(function() {
     return deleteAllVersions(username, key);
