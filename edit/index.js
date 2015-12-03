@@ -45,15 +45,19 @@ function edit(username, token, key, post) {
   return auth(username, token).then(function() {
     console.log("Getting old post");
     return getObj(bucket, username + '/' + key).then(function(oldPost) {
-      post.created = oldPost.created;
-      post.updated = new Date().toISOString();
-      if (!post.type) post.type = oldPost.type;
-      if (!post.data) post.data = oldPost.data;
-      console.log("Storing new post");
-      return putJSON(bucket, username + '/' + key, post);
-    }).then(function(data) {
-      post.url = key + '?VersionId=' + data.VersionId;
-      return post;
+      if (post.data && oldPost.data && (post.data === oldPost.data)) {
+        return post;
+      } else {
+        post.created = oldPost.created;
+        post.updated = new Date().toISOString();
+        if (!post.type) post.type = oldPost.type;
+        if (!post.data) post.data = oldPost.data;
+        console.log("Storing new post");
+        return putJSON(bucket, username + '/' + key, post).then(function(data) {
+          post.url = key + '?VersionId=' + data.VersionId;
+          return post;
+        });
+      }
     });
   });
 }
