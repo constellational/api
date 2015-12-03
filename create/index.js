@@ -37,6 +37,22 @@ function auth(username, token) {
   });
 }
 
+function checkHasChanged(username, key, post) {
+  return new Promise(function(resolve, reject) {
+    if (!key) {
+      resolve('No Key');
+    } else {
+      getObj('constellational-store', username + '/' + key).then(function(existingPost) {
+        if (existingPost.data === post.data) reject('Post already stored');
+        else resolve('Post has changed');
+      }).catch(function(err) {
+        if (err.code === 'NoSuchKey') resolve('Post not stored');
+        else resolve('Couldn\'t check post');
+      });
+    }
+  });
+}
+
 function create(username, token, post) {
   var username = username.toLowerCase();
   console.log("Going to create a new post for " + username);
@@ -46,10 +62,12 @@ function create(username, token, post) {
     post.created = new Date().toISOString();
     post.updated = post.created;
     if (!post.id) post.id = randomString();
-    post.key = post.created + post.id;
-    return putJSON(bucket, username + '/' + post.key, post).then(function(data) {
-      post.url = post.key + '?VersionId=' + data.VersionId;
-      return post;
+    if (!post.key) post.key = post.created + post.id;
+    return checkHasChanged(username, post.key, post).then(function() {
+      return putJSON(bucket, username + '/' + post.key, post).then(function(data) {
+        post.url = post.key + '?VersionId=' + data.VersionId;
+        return post;
+      });
     });
   });
 }
