@@ -48,16 +48,8 @@ function storeStaticFile(key, json) {
 
 exports.handler = function(event, context) {
   console.log("Starting");
-  // see https://aws.amazon.com/blogs/compute/fanout-s3-event-notifications-to-multiple-endpoints
-  var msgString = JSON.stringify(event.Records[0].Sns.Message);
-  console.log("Stringified sns message");
 
-  var x = msgString.replace(/\\/g,'');
-  var y = x.substring(1,x.length-1);
-  var snsMsgObject = JSON.parse(y);
-  console.log("Got sns message object");
-
-  var key = snsMsgObject.Records[0].s3.object.key;
+  var key = event.Records[0].s3.object.key;
   console.log("The key is: "+key);
   var splitKey = key.split('/');
   var username = splitKey[0];
