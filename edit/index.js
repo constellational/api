@@ -1,3 +1,7 @@
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
+
 var crypto = require('crypto');
 var base64url = require('base64-url');
 var Promise = require('bluebird');
@@ -26,9 +30,8 @@ function randomString() {
 
 function auth(username, token) {
   console.log("Going to check token for user " + username);
-  var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    return getObj(bucket, username).then(function(meta) {
+    return getObj(META_BUCKET, username).then(function(meta) {
       return bcrypt.compareAsync(token.secret, meta.tokens[token.id]);
     }).then(function(res) {
       if (!res) reject('Authentication Failed');
@@ -40,7 +43,7 @@ function auth(username, token) {
 function edit(username, token, key, post) {
   var username = username.toLowerCase();
   console.log("Going to edit a post");
-  var bucket = 'constellational-store';
+  var bucket = POST_BUCKET;
   delete post.token;
   return auth(username, token).then(function() {
     console.log("Getting old post");

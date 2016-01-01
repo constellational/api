@@ -1,3 +1,7 @@
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
+
 var crypto = require('crypto');
 var base64url = require('base64-url');
 var Promise = require('bluebird');
@@ -26,9 +30,8 @@ function randomString() {
 
 function auth(username, token) {
   console.log("Going to check token for user " + username);
-  var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    return getObj(bucket, username).then(function(meta) {
+    return getObj(META_BUCKET, username).then(function(meta) {
       return bcrypt.compareAsync(token.secret, meta.tokens[token.id]);
     }).then(function(res) {
       if (!res) reject('Authentication Failed');
@@ -42,7 +45,7 @@ function checkHasChanged(username, key, post) {
     if (!key) {
       resolve('No Key');
     } else {
-      getObj('constellational-store', username + '/' + key).then(function(existingPost) {
+      getObj(POST_BUCKET, username + '/' + key).then(function(existingPost) {
         if (existingPost.data === post.data) reject('Post already stored');
         else resolve('Post has changed');
       }).catch(function(err) {
@@ -58,13 +61,12 @@ function create(username, token, post) {
   console.log("Going to create a new post for " + username);
   delete post.token;
   return auth(username, token).then(function() {
-    var bucket = 'constellational-store';
     post.created = new Date().toISOString();
     post.updated = post.created;
     if (!post.id) post.id = randomString();
     if (!post.key) post.key = post.created + post.id;
     return checkHasChanged(username, post.key, post).then(function() {
-      return putJSON(bucket, username + '/' + post.key, post).then(function(data) {
+      return putJSON(POST_BUCKET, username + '/' + post.key, post).then(function(data) {
         post.url = post.key + '?VersionId=' + data.VersionId;
         return post;
       });

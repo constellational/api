@@ -1,12 +1,15 @@
-var BUCKET = 'constellational-store';
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
+
 var Promise = require('bluebird');
 var AWS = require('aws-sdk');
 var s3 = new AWS.S3();
 Promise.promisifyAll(Object.getPrototypeOf(s3));
 
 function getUser(key) {
-  console.log("Going to get " + key + " from " + BUCKET);
-  return s3.getObjectAsync({Bucket: BUCKET, Key: key}).then(function(data) {
+  console.log("Going to get " + key + " from " + USER_BUCKET);
+  return s3.getObjectAsync({Bucket: USER_BUCKET, Key: key}).then(function(data) {
     var s = new Buffer(data.Body).toString();
     return JSON.parse(s);
   }).catch(function() {
@@ -18,7 +21,7 @@ function list(username) {
   console.log("Going to list posts for " + username);
   var prefix = username + '/';
   return getUser(username).then(function(user) {
-    return s3.listObjectVersionsAsync({Bucket: BUCKET, Prefix: prefix}).then(function(data) {
+    return s3.listObjectVersionsAsync({Bucket: POST_BUCKET, Prefix: prefix}).then(function(data) {
       var latest = data.Versions.filter(function(o) {
         // After deleting objects, there seems to be a obj with size 0
         return (o.IsLatest && (o.Key !== prefix));
@@ -33,9 +36,9 @@ function list(username) {
 }
 
 function storeStaticFile(key, json) {
-  console.log("Going to put " + key + " in " + BUCKET);
+  console.log("Going to put " + key + " in " + USER_BUCKET);
   return s3.putObjectAsync({
-    Bucket: BUCKET,
+    Bucket: USER_BUCKET,
     Key: key,
     Body: JSON.stringify(json),
     ContentType: 'application/json',

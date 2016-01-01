@@ -1,3 +1,7 @@
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
+
 var crypto = require('crypto');
 var base64url = require('base64-url');
 var Promise = require('bluebird');
@@ -27,9 +31,8 @@ function randomString() {
 
 function checkAvailable(username) {
   console.log("Going to check if " + username + " is available");
-  var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    getObj(bucket, username).then(function(obj) {
+    getObj(META_BUCKET, username).then(function(obj) {
       reject('Unavailable');
     }).catch(function(err) {
       if (err.code === 'NoSuchKey') resolve('Available');
@@ -41,7 +44,6 @@ function checkAvailable(username) {
 function signup(username, email) {
   var username = username.toLowerCase();
   console.log("Going to sign " + username + " up");
-  var bucket = 'constellational-meta';
   var token = {
     id: randomString(),
     secret: randomString()
@@ -57,12 +59,12 @@ function signup(username, email) {
   }).then(function(hash) {
     user.emailHash = hash;
     console.log("Going to store user details");
-    return putJSON(bucket, username, user);
+    return putJSON(META_BUCKET, username, user);
   }).then(function() {
-    console.log("Going to store blank user page (in constellational-store)");
+    console.log("Going to store blank user page");
     // this is so that there will be a static page for the user from the start
     // even if there is nothing on it yet
-    return putJSON('constellational-store', username, {}, 'public-read');
+    return putJSON(USER_BUCKET, username, {}, 'public-read');
   }).then(function() {
     console.log("Going to return username and token");
     return {username: username, token: token};

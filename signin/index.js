@@ -1,4 +1,7 @@
 require('dotenv').load();
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
 var APP_URL = 'constellational://';
 
 var crypto = require('crypto');
@@ -32,9 +35,8 @@ function randomString() {
 
 function checkEmail(username, email) {
   console.log("Going to check email for " + username);
-  var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    return getObj(bucket, username).then(function(obj) {
+    return getObj(META_BUCKET, username).then(function(obj) {
       return bcrypt.compareAsync(email, obj.emailHash).then(function(res) {
         if (!res) reject('Signin failed');
         else resolve(obj);
@@ -73,7 +75,6 @@ function signin(username, email) {
   var username = username.toLowerCase();
   console.log("Going to sign " + username + " in");
   var user;
-  var bucket = 'constellational-meta';
   var token = {
     id: randomString(),
     secret: randomString()
@@ -86,7 +87,7 @@ function signin(username, email) {
     if (!user.tempTokens) user.tempTokens = {};
     user.tempTokens[token.id] = {hash: hash, created: Date.now()};
     console.log("Going to store bcrypted hash of temporary token");
-    return putJSON(bucket, username, user);
+    return putJSON(META_BUCKET, username, user);
   }).then(function() {
     console.log("Going to send email");
     return sendEmail(username, email, token);

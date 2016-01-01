@@ -1,3 +1,7 @@
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
+
 var crypto = require('crypto');
 var base64url = require('base64-url');
 var Promise = require('bluebird');
@@ -44,7 +48,7 @@ function checkToken(storedTokens, tempToken) {
 function generateToken(username, tempToken) {
   var username = username.toLowerCase();
   console.log("Going to generate token for " + username);
-  var bucket = 'constellational-meta';
+  var bucket = META_BUCKET;
   var token = {
     id: randomString(),
     secret: randomString()

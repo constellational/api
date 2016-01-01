@@ -1,3 +1,7 @@
+var POST_BUCKET = 'constellational-posts';
+var USER_BUCKET = 'constellational-users';
+var META_BUCKET = 'constellational-users-meta';
+
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 var AWS = require('aws-sdk');
@@ -14,9 +18,8 @@ function getObj(bucket, key) {
 
 function auth(username, token) {
   console.log("Going to check token for user " + username);
-  var bucket = 'constellational-meta';
   return new Promise(function(resolve, reject) {
-    return getObj(bucket, username).then(function(meta) {
+    return getObj(META_BUCKET, username).then(function(meta) {
       return bcrypt.compareAsync(token.secret, meta.tokens[token.id]);
     }).then(function(res) {
       if (!res) reject('Authentication Failed');
@@ -27,7 +30,7 @@ function auth(username, token) {
 
 function deleteAllVersions(username, key) {
   console.log("Going to delete all versions of post");
-  var params = {Bucket: 'constellational-store', Prefix: username + '/' + key};
+  var params = {Bucket: POST_BUCKET, Prefix: username + '/' + key};
   return s3.listObjectVersionsAsync(params).then(function(data) {
     var promiseArr = data.Versions.map(function(obj) {
       console.log("Going to delete version " + obj.VersionId + " of key " + obj.Key);
