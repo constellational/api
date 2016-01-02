@@ -63,6 +63,7 @@ function create(username, token, post) {
   return auth(username, token).then(function() {
     post.created = new Date().toISOString();
     post.updated = post.created;
+    post.username = username;
     if (!post.id) post.id = randomString();
     if (!post.key) post.key = post.created + post.id;
     return checkHasChanged(username, post.key, post).then(function() {
